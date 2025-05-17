@@ -1,0 +1,271 @@
+I think I like below structure better to separate them
+│   ├── ShipmentTracker.py\                     # For FBA Shipments script only
+│   ├── AWDShipmentTracker.py\                  # For AWD Shipments script only
+
+
+
+dashboard.html                # Interactive metrics
+
+Result as shown below
+2025-05-16 19:38:58 - AmazonAnalysis - SUCCESS - Report saved to RegionalHotspots_2024-01-01_to_2024-01-31.xlsx
+PS C:\Users\Admin\Desktop\Automation - Local\AmazonAnalysis> 
+
+But I want the report saved in Outputs folder and it should display same regional grouping and display its quantity in dashboard.html, so that I could know in a snapshoot which regions has the highest sales and lowest sales, not in excel file. Now I know why big companies request dashboard.html report. sorry to trouble you 
+
+
+
+
+cd "C:\Users\Admin\Desktop\Automation - Local\AmazonAnalysis"
+python -m Analysis.main `
+  --start_date "2024-03-01" `
+  --end_date "2024-03-31" `
+  --report_type regional
+
+
+python -m AmazonAnalysis.Analysis.main \
+  --start_date 2024-01-01 \
+  --end_date 2024-01-31 \
+  --report_type regional
+
+Let me update about "In-transit shipments"
+For US marketplace, it could be either FBA_FULFILLMENT_INBOUND_SHIPMENT_DATA or AWD (Amazon Warehousing and Distribution) inbound shipments while CA marketplace it only FBA_FULFILLMENT_INBOUND_SHIPMENT_DATA.
+
+
+
+
+Use the Inbound Shipments Report
+# Add to your script
+SHIPMENT_REPORT_TYPE = ReportType.GET_FBA_FULFILLMENT_INBOUND_SHIPMENT_DATA
+
+should be this
+https://developer-docs.amazon.com/sp-api/docs/amazon-warehousing-and-distribution-api-use-case-guide#awd-inbound-shipment-workflow
+
+It should be this
+# After (historical ledger):
+report_type = ReportType.GET_LEDGER_SUMMARY_VIEW_DATA  # Inventory Ledger - Summary
+NOT below
+# After (historical ledger):
+report_type = ReportType.GET_FBA_INVENTORY_PLANNING_DATA  # Inventory Ledger - Summary
+
+One more thing I worried is how about those products are on the way in the shipment e.g. Ocean. to Amazon warehouse. How to obtain this shipment data
+
+
+I am searching at https://developer-docs.amazon.com/sp-api/docs/report-type-values-fba#inventory-ledger-report---summary-view
+to check stock unit data and found this. I think this is what we are looking for. Can you check the website?
+
+
+Since there is no weekly and monthly inventory stock units information, I am thinking starting from now on, I create a new script from 01 FBAManageInventoryReportR02.py and automate it to download weekly inventory stock and monthly inventory stock by using my hp notebook. What do you think about this idea? Here is the 01 FBAManageInventoryReportR02.py file.
+
+
+You must take note that manage_inventory_report.xlsx and manage_inventory_report_CA.xlsx data show current stock unit while the order_report.xlsx provide accumulated order report from 1 January 2024 until 11 May 2025
+
+
+before running analysis scripts, I need to download Amazon Order Report via API by manually input the start date and end date in 02 OrderReportR06.py and also I need to download existing inventory stock units by running 01 FBAManageInventoryReportR02.py
+
+Structured Folder look like, what do you think? For the time being, I would like to get the Regional hotspots report first, because it is only required Order Report data directly, this should be easy. Let start easy task first.
+C:\Users\Admin\Desktop\Automation - Local\
+├── AutomateSupplierOrders\                      # Data collection only
+│   ├── FBA_Inventory_Ledger.py\                 # Inventory Ledger script
+│   ├── FBA_Inventory_Ledger\                    # Folder
+│   │   ├── Weekly	\						      # Weekly
+│   │   └── Monthly\						      # Monthly
+│   ├── ShipmentTracker.py\                     # For FBA Shipments script only
+│   ├── AWDShipmentTracker.py\                  # For AWD Shipments script only
+│   ├── Inbound_Shipments\                      # Folder
+|    │   ├── FBA\
+|    │    │   ├── US\				
+|    │    │   │   └── 2023-10-30_containers.csv
+|    │    │   └── CA Shipments\
+|    │    │       └── 2023-10-30_in_transit.csv
+|    │    └── AWD\
+|    │         └── US Shipments\
+|    │             └── 2023-10-30_in_transit.csv
+│   ├── 01 FBAManageInventoryReportR02.py   # Inventory Report Script
+│   ├── FBA Manage Inventory\                   # Inventory reports
+│   │   ├── manage_inventory_report.xlsx        # US
+│   │   └── manage_inventory_report_CA.xlsx     # CA
+│   ├── 02 OrderReportR06.py                    # Orders script
+│   └── Order Report\
+│       └── order_report.xlsx                   # Orders data
+└── AmazonAnalysis\                             # Analysis system only
+    ├── Analysis\
+    │   ├── main.py                            # Master script
+    │   ├── core\                              # Analysis logic
+    │   │   ├── product_analyzer.py            # SKU/ASIN metrics 
+    │   │   ├── pricing_analyzer.py           # Price optimization
+    │   │   ├── margin_analyzer.py             # Margin analysis
+    │   │   ├── geo_analyzer.py               # Regional hotspots
+    │   │   ├── inventory_analyzer.py          # Stock analysis
+    │   │   └── order_analyzer.py              # Order metrics
+    │   ├── utils\
+    │   │   ├── logger.py                      # Centralized logging
+    │   │   ├── period_detector.py			     # Period checker
+    │   │   └── data_loader.py                 # Load orders + inventory
+    │   └── config\
+    │   │   ├── paths.py                       # All file paths
+    │   │   └── constants.py                   # Marketplace codes
+    │   └── templates\
+    │       └── dashboard_template.html        # html
+    ├── Outputs\
+    │   ├── Weekly\
+    │   ├── Monthly\
+    │   └── Custom\
+    └── Logs\                                  # Central log storage
+        ├── analysis_2023-10-30.log
+        └── errors_2023-10-30.log
+
+which file is main script? where logging and error handling across all modules saved?
+
+besides running 02 OrderReportR06.py for order report, I need to get current inventory stock units at Amazon warehouse so I run 01 FBAManageInventoryReportR02.py which located at C:\Users\Admin\Desktop\Automation - Local\AutomateSupplierOrders\01 FBAManageInventoryReportR02.py and its data save at C:\Users\Admin\Desktop\Automation - Local\AutomateSupplierOrders\FBA Manage Inventory\manage_inventory_report.xlsx for US marketplace while C:\Users\Admin\Desktop\Automation - Local\AutomateSupplierOrders\FBA Manage Inventory\manage_inventory_report_CA.xlsx for CA marketplace
+
+AmazonAnalysis/Analysis/
+├── core/
+│   ├── __init__.py
+│   ├── base_analyzer.py         # Shared logic
+│   ├── product_analyzer.py      # SKU/ASIN metrics (200 lines)
+│   ├── pricing_analyzer.py      # Price optimization (150 lines)
+│   ├── margin_analyzer.py       # Margin analysis (100 lines)
+│   └── geo_analyzer.py          # Regional hotspots (150 lines)
+├── report_orchestrator.py       # Master controller (300 lines)
+└── config/
+    ├── analysis_config.yaml     # Toggle analyses on/off
+    └── paths.py                 # Centralized paths
+Outputs/
+├── 2023-10-30/
+│   ├── product_performance.xlsx
+│   ├── price_strategy.pdf
+│   └── geo_hotspots.html
+└── 2023-11-06/
+    ├── product_performance.xlsx
+    └── margin_analysis.pdf
+
+I worried about the report_generator.py file might over 1000 lines because it need to accommodate 
+ # Analyze SKU/ASIN metrics
+ # Price optimization
+ # Margin analysis
+ # Regional sales hotspots
+ # SEO/conversion analysis
+ # B2B vs. retail trends
+ # Time-based patterns
+ # ASIN-level comparison
+
+I wonder to run this analysis, do I need to manually input in many py files and execute one by one?
+
+
+C:\Users\Admin\Desktop\Automation - Local\
+├── AutomateSupplierOrders\                  # Existing data pipeline
+│   ├── 02 OrderReportR06.py
+│   └── Order Report\
+│       └── order_report.xlsx               # Fresh data source
+└── AmazonAnalysis\                         # New analysis system
+    ├── Analysis\
+    │   ├── config.py                       # Path configurations
+    │   ├── report_generator.py             # Main analysis engine
+    │   ├── pdf_formatter.py                # PDF formatting logic
+    │   └── utilities.py                    # Shared functions
+    ├── Outputs\
+    │   ├── Weekly\
+    │   │   ├── Excel\
+    │   │   └── PDF\
+    │   └── Monthly\
+    │       ├── Excel\
+    │       └── PDF\
+    └── Archives\                           # Optional
+        └── Order_Reports\
+
+1. Final Folder Structure look good to me, but I have a question, are you sure each python file's line can be below 1000 lines limit?
+2. Key Implementation Files
+c. AmazonAnalysis/Analysis/report_generator.py
+# Implement your business logic here, what is this?
+3. Execution Workflow
+Step 2: Run Analysis
+# Date parameters (customizable)
+I will give weekly start date and end date same goes to monthly start date and end date.
+
+7. output requirement: Excel and PDF will be fine
+9. **Customization**: to understand what 02 OrderReportR06.py is doing, I attached the file here.
+
+Existing folder
+C:\Users\Admin\Desktop\Automation - Local\AutomateSupplierOrders\
+├── 02 OrderReportR06.py                # Script to pull Amazon Order Report
+└── Order Report\
+    └── order_report.xlsx              # Raw output from Amazon API
+
+Preferable folder
+C:\Users\Admin\Desktop\Automation - Local\AmazonAnalysis\
+├── Analysis\                          # New folder for analysis scripts
+│   ├── config.py                      # Path configurations
+│   ├── product_performance.py         # Script for product metrics
+│   └── weekly_dashboard.py            # Script to generate HTML report
+├── Outputs\                           # Auto-generated reports/dashboards
+│   ├── monthly_excel.xlsx
+│   └── monthly_pdf_summaries\
+│   ├── weekly_excel.xlsx
+│   └── weekly_pdf_summaries\
+└── Data\                              # Optional: Archived historical data
+    ├── 2023-10-01_order_report.xlsx
+    └── 2023-10-08_order_report.xlsx
+
+
+
+
+
+for the time being, I do not want automation run weekly report because the Amazon Order Report is requested manually and need to specific the start date and end date, which is located and run by at C:\Users\Admin\Desktop\Automation - Local\AutomateSupplierOrders\02 OrderReportR06.py and the data are saved at C:\Users\Admin\Desktop\Automation - Local\AutomateSupplierOrders\Order Report\order_report.xlsx. So I need to run 02 OrderReportR06.py before I could run a script/function to get the weekly report. Right now, I need to confirm a structured folders and understand how everything are done before generate any scripts. Ask me anything before moving to the script generation.
+amazon_analysis/
+├── README.md                       # Project overview
+├── requirements.txt                # Dependencies
+├── data/
+│   ├── raw/                        # Raw Amazon API exports
+│   └── processed/                  # Cleaned data (Parquet/CSV)
+├── notebooks/                      # Jupyter notebooks for analysis
+│   ├── 1_data_preprocessing.ipynb
+│   ├── 2_product_performance.ipynb
+│   └── ...                         # Other notebooks (3-9)
+├── src/                            # Reusable Python modules
+│   ├── utils/
+│   │   ├── data_loader.py          # Load data
+│   │   ├── visualization.py        # Plot templates
+│   │   └── email_report.py         # Auto-send reports
+│   └── pipelines/                  # Data pipelines
+│       └── weekly_analysis.py       # Master script
+├── reports/                        # Auto-generated outputs
+│   ├── weekly_report.html          # Dashboard
+│   └── pdfs/                       # Archived PDFs
+└── automation/                     # Cron jobs/CI-CD
+    ├── run_weekly.sh               # Trigger analysis
+    └── cron_job.txt                # Cron schedule
+
+can you share sample for below
+weekly_report/dashboard.html  
+
+I prefer to run a python script on the Amazon Order Report to get to know more about 
+
+1. Analyze Product Performance
+2. Optimize Pricing Strategy
+3. Improve Profit Margins
+4. Geographic Targeting
+5. Enhance Listings for Conversion
+7. Customer Insights
+8. Seasonal Trends
+9. Competitor Benchmarking
+
+what/why/how is the best ways to do it
+
+I want a structured python scripts approach where every ipynb file within 1000 lines. Normally big company how they break down these structured approach? How their weekly report will look like? 
+
+amazon_analysis/
+├── 1_data_preprocessing.ipynb        # Clean/transform raw data
+├── 2_product_performance.ipynb       # Analyze SKU/ASIN metrics
+├── 3_pricing_strategy.ipynb          # Price optimization
+├── 4_profit_margins.ipynb            # Margin analysis
+├── 5_geographic_targeting.ipynb      # Regional sales hotspots
+├── 6_listing_optimization.ipynb      # SEO/conversion analysis
+├── 7_customer_insights.ipynb         # B2B vs. retail trends
+├── 8_seasonal_trends.ipynb           # Time-based patterns
+├── 9_competitor_benchmarking.ipynb   # ASIN-level comparisons
+├── utils/                            # Shared functions
+│   ├── data_loader.py                # Load/refresh data
+│   └── visualization.py              # Plot templates
+└── weekly_report/                    # Auto-generated outputs
+    ├── 2023-10-30_report.pdf         # PDF summary
+    └── dashboard.html                # Interactive metrics

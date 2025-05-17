@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Regional Sales Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .metric-box { padding: 20px; margin: 10px; background: #f5f5f5; }
+        #map { height: 500px; }
+    </style>
+</head>
+<body>
+    <h1>Regional Sales Dashboard ({{start_date}} to {{end_date}})</h1>
+    
+    <div class="metric-box">
+        <h3>Total Orders: {{total_orders}}</h3>
+        <h3>Total Revenue: ${{total_revenue}}</h3>
+    </div>
+
+    <div id="revenueChart"></div>
+    <div id="regionalTable"></div>
+
+    <script>
+        // Revenue by Region Chart
+        Plotly.newPlot('revenueChart', {{ revenue_plot | safe }}, {});
+
+        // Interactive Data Table
+        const tableData = {
+            values: [
+                {{ postal_codes | safe }},
+                {{ cities | safe }},
+                {{ states | safe }},
+                {{ orders | safe }},
+                {{ revenues | safe }}
+            ]
+        };
+        Plotly.newPlot('regionalTable', [tableData], {
+            header: {
+                values: ["Postal Code", "City", "State", "Orders", "Revenue"],
+                align: "center"
+            },
+            type: 'table'
+        });
+    </script>
+</body>
+</html>
