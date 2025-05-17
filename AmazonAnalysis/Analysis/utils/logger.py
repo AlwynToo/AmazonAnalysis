@@ -7,9 +7,8 @@ from Analysis.config.paths import LOG_DIR  # Ensure this import is correct
 SUCCESS = 25
 logging.addLevelName(SUCCESS, "SUCCESS")
 
-class CustomLogger(logging.Logger):
+class CustomLogger(logging.getLoggerClass()):
     def success(self, msg, *args, **kwargs):
-        """Custom success logging method"""
         if self.isEnabledFor(SUCCESS):
             self._log(SUCCESS, msg, args, **kwargs)
 

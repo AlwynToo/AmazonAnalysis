@@ -11,3 +11,5 @@
 ## Folder Structure  
 [Paste your folder tree here]  
 
+## GitHub repository link
+https://github.com/AlwynToo/AmazonAnalysis
