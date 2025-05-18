@@ -70,6 +70,8 @@ C:\Users\Admin\Desktop\Automation - Local\
     │   └── templates\
     │       └── dashboard_template.html        # html
     ├── Outputs\
+    │   ├── Dashboards\
+    │   ├── Reports\
     │   ├── Weekly\
     │   ├── Monthly\
     │   └── Custom\
@@ -80,3 +82,13 @@ C:\Users\Admin\Desktop\Automation - Local\
 
 ## GitHub repository link
 https://github.com/AlwynToo/AmazonAnalysis
+
+## Briefly tell me what you understand about these python files after you analyzed.
+1. main.py
+2. geo_analyzer.py
+3. period_detector.py
+4. logger.py
+5. data_loader.py
+6. paths.py
+7. constants.py
+8. dashboard_template.html
