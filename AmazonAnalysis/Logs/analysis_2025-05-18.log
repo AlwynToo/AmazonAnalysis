@@ -1,0 +1,7 @@
+2025-05-18 00:02:45 - AmazonAnalysis - INFO - Generating product dashboard...
+2025-05-18 00:02:45 - Analysis.core.product_analyzer - INFO - Initializing product analyzer
+2025-05-18 00:03:08 - Analysis.core.product_analyzer - SUCCESS - Order data loaded successfully
+2025-05-18 00:03:08 - Analysis.core.product_analyzer - ERROR - Analysis failed: 'date_column'
+2025-05-18 00:03:08 - AmazonAnalysis - ERROR - Dashboard generation failed: 'date_column'
+2025-05-18 15:07:22 - AmazonAnalysis - INFO - Generating regional dashboard...
+2025-05-18 15:07:46 - AmazonAnalysis - SUCCESS - Monthly report saved to Outputs\Monthly\RegionalDashboard_Monthly_2024-07-01_to_2024-07-31.html

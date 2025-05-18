@@ -7,12 +7,12 @@ from ..utils import logger, data_loader, period_detector
 from ..config import paths, constants
 
 class ProductAnalyzer:
-    def __init__(self):
-        self.log = logger.get_logger(__name__)
+    def __init__(self, start_date, end_date):
+        self.log = logger.setup_logger(__name__)
         self.log.info("Initializing product analyzer")
         
         try:
-            self.order_df = data_loader.load_order_data()
+            self.order_df = data_loader.load_order_data(start_date, end_date)
             self.log.success("Order data loaded successfully")
         except Exception as e:
             self.log.error(f"Failed to load order data: {str(e)}")
@@ -22,7 +22,7 @@ class ProductAnalyzer:
         """Main analysis workflow with full integration"""
         try:
             # Date filtering using data_loader utility
-            filtered_df = data_loader.filter_by_dates(self.order_df, start_date, end_date)
+            filtered_df = data_loader.filter_by_dates(self.order_df, 'date_column', start_date, end_date)
             self.log.info(f"Filtered {len(filtered_df)} orders between {start_date} and {end_date}")
 
             # Period detection

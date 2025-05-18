@@ -1,8 +1,14 @@
 # AmazonAnalysis/Analysis/config/paths.py
+import os
 from pathlib import Path
 
+
+# Root directory: AmazonAnalysis/
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # Adjust based on your structure
+LOG_DIR = os.path.join(BASE_DIR, "Logs")  # Points to AmazonAnalysis/Logs
+
 # Base directory: Points to "AmazonAnalysis/" folder
-ROOT_DIR = Path(__file__).parent.parent.parent
+ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 # Data Sources
 ORDER_DATA = ROOT_DIR / "AutomateSupplierOrders/Order Report/order_report.xlsx"

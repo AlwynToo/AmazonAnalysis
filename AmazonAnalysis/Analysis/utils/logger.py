@@ -15,7 +15,9 @@ class CustomLogger(logging.getLoggerClass()):
 def setup_logger(name: str = "AmazonAnalysis") -> CustomLogger:
     """Configure logger with file/console handlers and custom levels"""
     # Create logs directory if missing
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    # LOG_DIR.mkdir(parents=True, exist_ok=True)
+    log_path = Path(LOG_DIR)
+    log_path.mkdir(parents=True, exist_ok=True)  # Now works with Path
     
     # Create custom logger
     logger = CustomLogger(name)
@@ -27,10 +29,10 @@ def setup_logger(name: str = "AmazonAnalysis") -> CustomLogger:
 
     # File handler (debug+)
     file_handler = logging.FileHandler(
-        LOG_DIR / f"analysis_{datetime.today().date()}.log"
+        log_path / f"analysis_{datetime.today().date()}.log"  # Now uses Path/
     )
     file_handler.setLevel(logging.DEBUG)
-
+    
     # Console handler (info+)
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
